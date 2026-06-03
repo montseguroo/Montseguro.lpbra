@@ -3,7 +3,6 @@ import { ArrowRight } from "lucide-react";
 import FormStep1 from "./FormStep1";
 import FormStep2 from "./FormStep2";
 import FormStep3 from "./FormStep3";
-import FormStep4 from "./FormStep4";
 import FormStep5 from "./FormStep5";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,11 +10,12 @@ import { supabase } from "@/integrations/supabase/client";
 interface FormData {
   nome: string;
   telefone: string;
+  email: string;
+  investimentoAtual: string;
   planoAtual: string;
   porteEmpresa: string;
   faixasEtarias: { [key: string]: number };
   hospitais: string;
-  doencas: string;
 }
 
 const HeroSection = () => {
@@ -25,11 +25,12 @@ const HeroSection = () => {
   const [formData, setFormData] = useState<FormData>({
     nome: "",
     telefone: "",
+    email: "",
+    investimentoAtual: "",
     planoAtual: "",
     porteEmpresa: "",
     faixasEtarias: {},
     hospitais: "",
-    doencas: "",
   });
 
   const handleStartForm = () => {
@@ -37,7 +38,7 @@ const HeroSection = () => {
     formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
-  const handleStep1 = (data: { nome: string; telefone: string; planoAtual: string; porteEmpresa: string }) => {
+  const handleStep1 = (data: { nome: string; telefone: string; email: string; investimentoAtual: string; planoAtual: string; porteEmpresa: string }) => {
     setFormData(prev => ({ ...prev, ...data }));
     setStep(2);
   };
@@ -49,11 +50,6 @@ const HeroSection = () => {
 
   const handleStep3 = (data: string) => {
     setFormData(prev => ({ ...prev, hospitais: data }));
-    setStep(4);
-  };
-
-  const handleStep4 = (data: string) => {
-    setFormData(prev => ({ ...prev, doencas: data }));
     setStep(5);
   };
 
@@ -94,9 +90,12 @@ const HeroSection = () => {
       formDataToSend.append("fields[phone][value]", formData.telefone.replace(/\D/g, ''));
       formDataToSend.append("fields[phone][required]", "1");
       
-      formDataToSend.append("fields[email][value]", "");
-      formDataToSend.append("fields[email][required]", "0");
+      formDataToSend.append("fields[email][value]", formData.email || "");
+      formDataToSend.append("fields[email][required]", "1");
       
+      formDataToSend.append("fields[current_investment][value]", formData.investimentoAtual || "");
+      formDataToSend.append("fields[current_investment][required]", "0");
+
       formDataToSend.append("fields[current_plan][value]", formData.planoAtual || "");
       formDataToSend.append("fields[current_plan][required]", "0");
       
@@ -115,12 +114,8 @@ const HeroSection = () => {
       formDataToSend.append("fields[age_54-58][value]", String(formData.faixasEtarias["54-58"] || 0));
       formDataToSend.append("fields[age_59+][value]", String(formData.faixasEtarias["59+"] || 0));
       
-      // Hospitais e doenças
       formDataToSend.append("fields[preferred_hospitals][value]", formData.hospitais || "");
       formDataToSend.append("fields[preferred_hospitals][required]", "0");
-      
-      formDataToSend.append("fields[pre_existing_conditions][value]", formData.doencas || "");
-      formDataToSend.append("fields[pre_existing_conditions][required]", "0");
       
       // UTM params capturados da URL
       formDataToSend.append("fields[utm_source][value]", utmParams.utm_source);
@@ -168,11 +163,12 @@ const HeroSection = () => {
       const sheetsPayload = {
         nome: formData.nome,
         telefone: formData.telefone,
+        email: formData.email,
+        investimentoAtual: formData.investimentoAtual,
         porteEmpresa: formData.porteEmpresa,
         planoAtual: formData.planoAtual,
         faixasEtarias: formData.faixasEtarias,
         hospitais: formData.hospitais,
-        doencas: formData.doencas,
         ...utmParams,
       };
 
@@ -247,13 +243,12 @@ const HeroSection = () => {
             {step === 1 && <FormStep1 onContinue={handleStep1} />}
             {step === 2 && <FormStep2 onContinue={handleStep2} onBack={() => setStep(1)} />}
             {step === 3 && <FormStep3 onContinue={handleStep3} onBack={() => setStep(2)} />}
-            {step === 4 && <FormStep4 onContinue={handleStep4} onBack={() => setStep(3)} />}
             {step === 5 && (
               <FormStep5
                 formData={formData}
                 onEdit={handleEdit}
                 onSubmit={handleSubmit}
-                onBack={() => setStep(4)}
+                onBack={() => setStep(3)}
               />
             )}
           </div>

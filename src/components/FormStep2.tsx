@@ -45,7 +45,7 @@ const FormStep2 = ({ onContinue, onBack }: FormStep2Props) => {
 
   return (
     <div className="w-full max-w-md">
-      <StepIndicator currentStep={2} totalSteps={5} />
+      <StepIndicator currentStep={2} totalSteps={4} />
       
       <h2 className="text-2xl font-bold text-primary-foreground text-center mb-8">
         Quais seriam as idades que<br />gostaria de adicionar ao plano?

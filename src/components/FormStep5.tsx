@@ -4,11 +4,12 @@ import { ArrowLeft } from "lucide-react";
 interface FormData {
   nome: string;
   telefone: string;
+  email: string;
+  investimentoAtual: string;
   planoAtual: string;
   porteEmpresa: string;
   faixasEtarias: { [key: string]: number };
   hospitais: string;
-  doencas: string;
 }
 
 interface FormStep5Props {
@@ -31,7 +32,7 @@ const FormStep5 = ({ formData, onEdit, onSubmit, onBack }: FormStep5Props) => {
 
   return (
     <div className="w-full max-w-md">
-      <StepIndicator currentStep={5} totalSteps={5} />
+      <StepIndicator currentStep={4} totalSteps={4} />
       
       <h2 className="text-2xl font-bold text-primary-foreground text-center mb-6">
         Confirme seus dados
@@ -57,6 +58,34 @@ const FormStep5 = ({ formData, onEdit, onSubmit, onBack }: FormStep5Props) => {
             <div>
               <span className="text-primary-foreground/70 text-sm">Telefone</span>
               <p className="text-primary-foreground font-medium">{formData.telefone || "—"}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => onEdit(1)}
+              className="text-primary-foreground text-sm font-medium hover:underline"
+            >
+              Editar
+            </button>
+          </div>
+
+          <div className="py-3 px-4 flex justify-between items-start">
+            <div>
+              <span className="text-primary-foreground/70 text-sm">E-mail</span>
+              <p className="text-primary-foreground font-medium">{formData.email || "—"}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => onEdit(1)}
+              className="text-primary-foreground text-sm font-medium hover:underline"
+            >
+              Editar
+            </button>
+          </div>
+
+          <div className="py-3 px-4 flex justify-between items-start">
+            <div>
+              <span className="text-primary-foreground/70 text-sm">Investimento Atual</span>
+              <p className="text-primary-foreground font-medium">{formData.investimentoAtual || "—"}</p>
             </div>
             <button
               type="button"
@@ -123,19 +152,6 @@ const FormStep5 = ({ formData, onEdit, onSubmit, onBack }: FormStep5Props) => {
             </button>
           </div>
 
-          <div className="py-3 px-4 flex justify-between items-start">
-            <div>
-              <span className="text-primary-foreground/70 text-sm">Doenças Pré-existentes</span>
-              <p className="text-primary-foreground font-medium">{formData.doencas || "—"}</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => onEdit(4)}
-              className="text-primary-foreground text-sm font-medium hover:underline"
-            >
-              Editar
-            </button>
-          </div>
         </div>
 
         <div className="flex flex-col gap-3 mt-4">
@@ -147,7 +163,7 @@ const FormStep5 = ({ formData, onEdit, onSubmit, onBack }: FormStep5Props) => {
           </button>
           <button
             type="button"
-            onClick={onBack}
+            onClick={() => onBack()}
             className="flex items-center justify-center gap-2 text-primary-foreground/70 text-sm hover:text-primary-foreground transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />

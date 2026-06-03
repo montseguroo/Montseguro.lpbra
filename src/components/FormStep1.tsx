@@ -2,12 +2,14 @@ import { useState } from "react";
 import StepIndicator from "./StepIndicator";
 
 interface FormStep1Props {
-  onContinue: (data: { nome: string; telefone: string; planoAtual: string; porteEmpresa: string }) => void;
+  onContinue: (data: { nome: string; telefone: string; email: string; investimentoAtual: string; planoAtual: string; porteEmpresa: string }) => void;
 }
 
 const FormStep1 = ({ onContinue }: FormStep1Props) => {
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
+  const [email, setEmail] = useState("");
+  const [investimentoAtual, setInvestimentoAtual] = useState("");
   const [planoAtual, setPlanoAtual] = useState("");
   const [porteEmpresa, setPorteEmpresa] = useState("");
 
@@ -35,12 +37,12 @@ const FormStep1 = ({ onContinue }: FormStep1Props) => {
       alert("WhatsApp inválido.");
       return;
     }
-    onContinue({ nome, telefone, planoAtual, porteEmpresa });
+    onContinue({ nome, telefone, email, investimentoAtual, planoAtual, porteEmpresa });
   };
 
   return (
     <div className="w-full max-w-md">
-      <StepIndicator currentStep={1} totalSteps={5} />
+      <StepIndicator currentStep={1} totalSteps={4} />
       
       <h2 className="text-2xl font-bold text-primary-foreground text-center mb-8">
         Simule seu Plano de Saúde<br />usando seu CNPJ.
@@ -89,6 +91,35 @@ const FormStep1 = ({ onContinue }: FormStep1Props) => {
               required
             />
           </div>
+        </div>
+
+        <div>
+          <label className="block text-primary-foreground text-sm mb-2">E-mail *</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Digite seu e-mail"
+            className="w-full px-4 py-3 rounded-md bg-card text-foreground placeholder:text-muted-foreground"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-primary-foreground text-sm mb-2">Quanto investe hoje em plano de saúde? *</label>
+          <input
+            type="text"
+            value={investimentoAtual}
+            onChange={(e) => {
+              const raw = e.target.value.replace(/\D/g, '');
+              if (!raw) { setInvestimentoAtual(''); return; }
+              const value = (parseInt(raw, 10) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+              setInvestimentoAtual(value);
+            }}
+            placeholder="R$ 0,00"
+            className="w-full px-4 py-3 rounded-md bg-card text-foreground placeholder:text-muted-foreground"
+            required
+          />
         </div>
 
         <div>
