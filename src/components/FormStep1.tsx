@@ -58,7 +58,7 @@ const FormStep1 = ({ onContinue }: FormStep1Props) => {
         Simule seu Plano de Saúde<br />usando seu CNPJ.
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <div onKeyDown={handleKeyDown} className="space-y-4">
         <div>
           <label className="block text-primary-foreground text-sm mb-2">Nome*</label>
           <input
