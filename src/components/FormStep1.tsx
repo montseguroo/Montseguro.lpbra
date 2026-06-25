@@ -25,8 +25,7 @@ const FormStep1 = ({ onContinue }: FormStep1Props) => {
     setTelefone(formatted);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     const digits = telefone.replace(/\D/g, '');
     if (digits.length < 11) {
       alert("WhatsApp inválido. O número deve ter no mínimo 11 dígitos.");
@@ -37,7 +36,18 @@ const FormStep1 = ({ onContinue }: FormStep1Props) => {
       alert("WhatsApp inválido.");
       return;
     }
+    if (!nome || !email || !investimentoAtual || !planoAtual || !porteEmpresa) {
+      alert("Preencha todos os campos obrigatórios.");
+      return;
+    }
     onContinue({ nome, telefone, email, investimentoAtual, planoAtual, porteEmpresa });
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSubmit();
+    }
   };
 
   return (
