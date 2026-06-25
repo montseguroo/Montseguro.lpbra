@@ -25,8 +25,7 @@ const FormStep5 = ({ formData, onEdit, onSubmit, onBack }: FormStep5Props) => {
     return entries.map(([faixa, count]) => `${faixa}: ${count}`).join(", ") || "Nenhuma";
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     onSubmit();
   };
 
@@ -38,7 +37,7 @@ const FormStep5 = ({ formData, onEdit, onSubmit, onBack }: FormStep5Props) => {
         Confirme seus dados
       </h2>
 
-      <form onSubmit={handleSubmit}>
+      <div>
         <div className="bg-primary-foreground/10 rounded-lg overflow-hidden backdrop-blur-sm">
           <div className="py-3 px-4 flex justify-between items-start">
             <div>
@@ -156,7 +155,8 @@ const FormStep5 = ({ formData, onEdit, onSubmit, onBack }: FormStep5Props) => {
 
         <div className="flex flex-col gap-3 mt-4">
           <button
-            type="submit"
+            type="button"
+            onClick={handleSubmit}
             className="w-full py-4 bg-card text-primary font-semibold rounded-md hover:bg-card/90 transition-colors"
           >
             CONFIRMAR E ENVIAR
@@ -170,7 +170,7 @@ const FormStep5 = ({ formData, onEdit, onSubmit, onBack }: FormStep5Props) => {
             Voltar
           </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 };

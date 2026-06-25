@@ -25,8 +25,7 @@ const FormStep1 = ({ onContinue }: FormStep1Props) => {
     setTelefone(formatted);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     const digits = telefone.replace(/\D/g, '');
     if (digits.length < 11) {
       alert("WhatsApp inválido. O número deve ter no mínimo 11 dígitos.");
@@ -37,7 +36,18 @@ const FormStep1 = ({ onContinue }: FormStep1Props) => {
       alert("WhatsApp inválido.");
       return;
     }
+    if (!nome || !email || !investimentoAtual || !planoAtual || !porteEmpresa) {
+      alert("Preencha todos os campos obrigatórios.");
+      return;
+    }
     onContinue({ nome, telefone, email, investimentoAtual, planoAtual, porteEmpresa });
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSubmit();
+    }
   };
 
   return (
@@ -48,7 +58,7 @@ const FormStep1 = ({ onContinue }: FormStep1Props) => {
         Simule seu Plano de Saúde<br />usando seu CNPJ.
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <div onKeyDown={handleKeyDown} className="space-y-4">
         <div>
           <label className="block text-primary-foreground text-sm mb-2">Nome*</label>
           <input
@@ -151,7 +161,8 @@ const FormStep1 = ({ onContinue }: FormStep1Props) => {
         </div>
 
         <button
-          type="submit"
+          type="button"
+          onClick={handleSubmit}
           className="w-full py-4 bg-card text-primary font-semibold rounded-md hover:bg-card/90 transition-colors mt-6"
         >
           ENVIAR
@@ -161,7 +172,7 @@ const FormStep1 = ({ onContinue }: FormStep1Props) => {
           Ao enviar os seus dados pessoais, você fica ciente do Comunicado de<br />
           Privacidade e Termos de Uso e confirma que tem CNPJ.
         </p>
-      </form>
+      </div>
     </div>
   );
 };

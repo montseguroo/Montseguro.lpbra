@@ -32,8 +32,7 @@ const FormStep2 = ({ onContinue, onBack }: FormStep2Props) => {
     setError("");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     const total = Object.values(ages).reduce((sum, v) => sum + v, 0);
     if (total < 1) {
       setError("Selecione pelo menos 1 vida.");
@@ -51,7 +50,7 @@ const FormStep2 = ({ onContinue, onBack }: FormStep2Props) => {
         Quais seriam as idades que<br />gostaria de adicionar ao plano?
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-6">
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           {Object.keys(ages).map(range => (
             <AgeCounter
@@ -69,7 +68,8 @@ const FormStep2 = ({ onContinue, onBack }: FormStep2Props) => {
 
         <div className="flex flex-col gap-3 mt-6">
           <button
-            type="submit"
+            type="button"
+            onClick={handleSubmit}
             className="w-full py-4 bg-card text-primary font-semibold rounded-md hover:bg-card/90 transition-colors"
           >
             CONTINUAR
@@ -83,7 +83,7 @@ const FormStep2 = ({ onContinue, onBack }: FormStep2Props) => {
             Voltar
           </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 };
