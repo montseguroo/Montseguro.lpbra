@@ -26,7 +26,7 @@ const FormStep3 = ({ onContinue, onBack }: FormStep3Props) => {
         Possui hospitais ou regiões de<br />preferência?
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-6">
         <div>
           <label className="block text-primary-foreground text-sm mb-2">
             Hospitais ou Regiões de Preferência *
@@ -42,7 +42,8 @@ const FormStep3 = ({ onContinue, onBack }: FormStep3Props) => {
 
         <div className="flex flex-col gap-3">
           <button
-            type="submit"
+            type="button"
+            onClick={handleSubmit}
             className="w-full py-4 bg-card text-primary font-semibold rounded-md hover:bg-card/90 transition-colors"
           >
             CONTINUAR
@@ -56,7 +57,7 @@ const FormStep3 = ({ onContinue, onBack }: FormStep3Props) => {
             Voltar
           </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 };
