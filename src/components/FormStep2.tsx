@@ -68,7 +68,8 @@ const FormStep2 = ({ onContinue, onBack }: FormStep2Props) => {
 
         <div className="flex flex-col gap-3 mt-6">
           <button
-            type="submit"
+            type="button"
+            onClick={handleSubmit}
             className="w-full py-4 bg-card text-primary font-semibold rounded-md hover:bg-card/90 transition-colors"
           >
             CONTINUAR
@@ -82,7 +83,7 @@ const FormStep2 = ({ onContinue, onBack }: FormStep2Props) => {
             Voltar
           </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 };
