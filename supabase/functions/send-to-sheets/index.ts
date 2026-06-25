@@ -3,6 +3,35 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Simple in-memory rate limiter (per-instance). Limits abusive bursts from a single IP.
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX = 5;
+const rateMap = new Map<string, { count: number; reset: number }>();
+
+const isRateLimited = (ip: string): boolean => {
+  const now = Date.now();
+  const entry = rateMap.get(ip);
+  if (!entry || entry.reset < now) {
+    rateMap.set(ip, { count: 1, reset: now + RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+  entry.count += 1;
+  if (entry.count > RATE_LIMIT_MAX) return true;
+  return false;
+};
+
+// Sanitize a value going into Google Sheets:
+// - coerce to string, trim
+// - cap length
+// - neutralize formula-trigger leading chars (=, +, -, @, tab, CR) by prefixing a single quote
+const MAX_FIELD_LEN = 500;
+const sanitizeCell = (val: unknown): string => {
+  let s = (val === null || val === undefined) ? '' : String(val);
+  if (s.length > MAX_FIELD_LEN) s = s.slice(0, MAX_FIELD_LEN);
+  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+  return s;
+};
+
 const createJWT = async (serviceAccount: { client_email: string; private_key: string }) => {
   const header = { alg: 'RS256', typ: 'JWT' };
   const now = Math.floor(Date.now() / 1000);
@@ -58,7 +87,11 @@ const getAccessToken = async (serviceAccount: { client_email: string; private_ke
     body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`,
   });
   const data = await res.json();
-  if (!res.ok) throw new Error(`Token error: ${JSON.stringify(data)}`);
+  if (!res.ok) {
+    // Log full detail server-side; do not surface to client.
+    console.error('OAuth token error:', JSON.stringify(data));
+    throw new Error('oauth_token_failed');
+  }
   return data.access_token as string;
 };
 
@@ -68,6 +101,18 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Basic per-IP rate limiting
+    const ip =
+      req.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+      req.headers.get('x-real-ip') ||
+      'unknown';
+    if (isRateLimited(ip)) {
+      return new Response(JSON.stringify({ error: 'Too many requests' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 429,
+      });
+    }
+
     const saJson = Deno.env.get('GOOGLE_SERVICE_ACCOUNT_JSON');
     if (!saJson) throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON not configured');
 
@@ -94,18 +139,17 @@ Deno.serve(async (req) => {
       gclid = '',
     } = body;
 
-    // Build "conversao" as a summary string with faixas, hospitais, doencas
     const faixasStr = Object.entries(faixasEtarias as Record<string, number>)
       .filter(([_, count]) => count > 0)
       .map(([faixa, count]) => `${faixa}: ${count}`)
       .join(', ') || '';
 
     const totalVidas = Object.values(faixasEtarias as Record<string, number>).reduce(
-      (sum: number, count: number) => sum + count,
+      (sum: number, count: number) => sum + Number(count || 0),
       0
     );
 
-    const conversaoParts = [];
+    const conversaoParts: string[] = [];
     if (totalVidas > 0) conversaoParts.push(`Vidas: ${totalVidas} (${faixasStr})`);
     if (hospitais) conversaoParts.push(`Hospitais: ${hospitais}`);
     if (doencas) conversaoParts.push(`Doenças: ${doencas}`);
@@ -115,7 +159,6 @@ Deno.serve(async (req) => {
     const data = now.toLocaleDateString('pt-BR');
     const horario = now.toLocaleTimeString('pt-BR');
 
-    // Columns: nome, telefone, porte, conversao, utm_campaign, utm_term, plano, data, horário, gclid
     const row = [
       nome,
       telefone,
@@ -127,12 +170,13 @@ Deno.serve(async (req) => {
       data,
       horario,
       gclid,
-    ];
+    ].map(sanitizeCell);
 
     const accessToken = await getAccessToken(serviceAccount);
 
+    // Use RAW to prevent Sheets from interpreting any cell as a formula.
     const sheetsRes = await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/P%C3%A1gina1!A:J:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/P%C3%A1gina1!A:J:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
       {
         method: 'POST',
         headers: {
@@ -143,9 +187,10 @@ Deno.serve(async (req) => {
       }
     );
 
-    const sheetsData = await sheetsRes.json();
     if (!sheetsRes.ok) {
-      throw new Error(`Sheets API error [${sheetsRes.status}]: ${JSON.stringify(sheetsData)}`);
+      const sheetsData = await sheetsRes.text();
+      console.error(`Sheets API error [${sheetsRes.status}]:`, sheetsData);
+      throw new Error('sheets_write_failed');
     }
 
     return new Response(JSON.stringify({ success: true }), {
@@ -153,9 +198,9 @@ Deno.serve(async (req) => {
       status: 200,
     });
   } catch (error: unknown) {
-    console.error('Error:', error);
-    const msg = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: msg }), {
+    // Log full details server-side, return generic message to client.
+    console.error('send-to-sheets error:', error);
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,
     });
