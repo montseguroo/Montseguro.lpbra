@@ -32,8 +32,7 @@ const FormStep2 = ({ onContinue, onBack }: FormStep2Props) => {
     setError("");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     const total = Object.values(ages).reduce((sum, v) => sum + v, 0);
     if (total < 1) {
       setError("Selecione pelo menos 1 vida.");
