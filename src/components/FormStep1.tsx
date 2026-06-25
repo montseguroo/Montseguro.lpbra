@@ -161,7 +161,8 @@ const FormStep1 = ({ onContinue }: FormStep1Props) => {
         </div>
 
         <button
-          type="submit"
+          type="button"
+          onClick={handleSubmit}
           className="w-full py-4 bg-card text-primary font-semibold rounded-md hover:bg-card/90 transition-colors mt-6"
         >
           ENVIAR
@@ -171,7 +172,7 @@ const FormStep1 = ({ onContinue }: FormStep1Props) => {
           Ao enviar os seus dados pessoais, você fica ciente do Comunicado de<br />
           Privacidade e Termos de Uso e confirma que tem CNPJ.
         </p>
-      </form>
+      </div>
     </div>
   );
 };
