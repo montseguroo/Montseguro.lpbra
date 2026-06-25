@@ -50,7 +50,7 @@ const FormStep2 = ({ onContinue, onBack }: FormStep2Props) => {
         Quais seriam as idades que<br />gostaria de adicionar ao plano?
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-6">
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           {Object.keys(ages).map(range => (
             <AgeCounter
