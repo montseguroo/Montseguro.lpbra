@@ -10,8 +10,11 @@ interface FormStep3Props {
 const FormStep3 = ({ onContinue, onBack }: FormStep3Props) => {
   const [hospitais, setHospitais] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
+    if (!hospitais.trim()) {
+      alert("Preencha o campo de hospitais ou regiões de preferência.");
+      return;
+    }
     onContinue(hospitais);
   };
 
