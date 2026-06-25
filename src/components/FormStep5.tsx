@@ -37,7 +37,7 @@ const FormStep5 = ({ formData, onEdit, onSubmit, onBack }: FormStep5Props) => {
         Confirme seus dados
       </h2>
 
-      <form onSubmit={handleSubmit}>
+      <div>
         <div className="bg-primary-foreground/10 rounded-lg overflow-hidden backdrop-blur-sm">
           <div className="py-3 px-4 flex justify-between items-start">
             <div>
