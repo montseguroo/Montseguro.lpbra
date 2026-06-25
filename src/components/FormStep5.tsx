@@ -25,8 +25,7 @@ const FormStep5 = ({ formData, onEdit, onSubmit, onBack }: FormStep5Props) => {
     return entries.map(([faixa, count]) => `${faixa}: ${count}`).join(", ") || "Nenhuma";
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     onSubmit();
   };
 
